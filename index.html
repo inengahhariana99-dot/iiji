@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab Maya Rantai Makanan - Kelas 6 SD</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700;800&display=swap');
+        body { font-family: 'Nunito', sans-serif; }
+        .font-fredoka { font-family: 'Fredoka', cursive; }
+        .aspect-16-9 { aspect-ratio: 16 / 9; }
+        @keyframes pulse-slow {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .animate-pulse-slow { animation: pulse-slow 3s infinite ease-in-out; }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        .animate-float { animation: float 2.5s infinite ease-in-out; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-emerald-100 via-teal-50 to-cyan-100 min-h-screen flex items-center justify-center p-2 sm:p-4 select-none">
+
+    <!-- Main Container 16:9 Responsive Desktop & Mobile -->
+    <div id="app-container" class="w-full max-w-6xl aspect-16-9 max-h-[92vh] bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col border-4 border-emerald-400 relative">
+        
+        <!-- Top Bar Header -->
+        <header class="bg-gradient-to-r from-emerald-600 to-teal-700 text-white px-4 py-3 flex items-center justify-between shadow-md z-20">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-inner text-2xl font-fredoka">🌿</div>
+                <div>
+                    <h1 class="text-lg sm:text-xl font-bold font-fredoka tracking-wide">Lab Maya Rantai Makanan</h1>
+                    <p class="text-xs text-emerald-200">Fase C • Kelas 6 SD • Kurikulum Merdeka</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2 sm:space-x-4">
+                <button id="sound-toggle" onclick="toggleSound()" class="bg-emerald-800 hover:bg-emerald-900 text-emerald-100 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center space-x-1 shadow transition">
+                    <span id="sound-icon">🔊</span> <span class="hidden sm:inline" id="sound-text">Suara: ON</span>
+                </button>
+                <div class="text-right hidden sm:block">
+                    <p class="text-xs font-semibold text-emerald-100">Pengembang:</p>
+                    <p class="text-xs font-bold text-white">I Nengah Hariana, S.Pd.</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Splash Screen Overlay -->
+        <div id="splash-screen" class="absolute inset-0 bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 z-50 flex flex-col items-center justify-center text-white p-6 text-center">
+            <div class="w-24 h-24 sm:w-32 sm:h-32 bg-white/10 rounded-full flex items-center justify-center mb-4 animate-bounce border-4 border-white/30 backdrop-blur-md">
+                <svg class="w-16 h-16 sm:w-20 sm:h-20 text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+            </div>
+            <h2 class="text-2xl sm:text-4xl font-extrabold font-fredoka mb-2 text-yellow-300 drop-shadow-md">Eksplorasi Rantai Makanan</h2>
+            <p class="text-sm sm:text-base text-emerald-100 max-w-md mb-6 font-medium">Belajar ilmu pengetahuan alam dan sosial (IPAS) ekosistem dengan seru, interaktif, dan menyenangkan!</p>
+            
+            <div id="loading-box" class="w-64 bg-emerald-900/50 rounded-full h-4 p-0.5 mb-6 border border-emerald-400/40">
+                <div id="loading-bar" class="bg-gradient-to-r from-yellow-300 to-emerald-300 h-full rounded-full transition-all duration-300 w-0"></div>
+            </div>
+            <p id="loading-status" class="text-xs text-emerald-200 mb-4">Memuat aset laboratorium maya...</p>
+
+            <button id="start-btn" onclick="startApp()" class="hidden bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-emerald-950 font-extrabold font-fredoka text-lg sm:text-xl px-8 py-3 rounded-2xl shadow-xl transform hover:scale-105 transition active:scale-95 border-2 border-yellow-200">
+                🚀 Mulai Eksperimen
+            </button>
+        </div>
+
+        <!-- Navigation Bar Tabs -->
+        <nav class="bg-emerald-50 border-b border-emerald-200 flex overflow-x-auto px-2 py-1.5 space-x-1 sm:space-x-2 shrink-0">
+            <button onclick="switchTab('teori')" id="tab-btn-teori" class="tab-btn px-3 sm:px-5 py-2 rounded-xl text-xs sm:text-sm font-bold font-fredoka flex items-center space-x-1.5 transition bg-emerald-600 text-white shadow-sm">
+                <span>📖</span> <span>Teori</span>
+            </button>
+            <button onclick="switchTab('prosedur')" id="tab-btn-prosedur" class="tab-btn px-3 sm:px-5 py-2 rounded-xl text-xs sm:text-sm font-bold font-fredoka flex items-center space-x-1.5 transition bg-emerald-100 text-emerald-800 hover:bg-emerald-200">
+                <span>📋</span> <span>Prosedur</span>
+            </button>
+            <button onclick="switchTab('simulasi')" id="tab-btn-simulasi" class="tab-btn px-3 sm:px-5 py-2 rounded-xl text-xs sm:text-sm font-bold font-fredoka flex items-center space-x-1.5 transition bg-emerald-100 text-emerald-800 hover:bg-emerald-200">
+                <span>🧪</span> <span>Simulasi Rantai Makanan</span>
+            </button>
+            <button onclick="switchTab('lkpd')" id="tab-btn-lkpd" class="tab-btn px-3 sm:px-5 py-2 rounded-xl text-xs sm:text-sm font-bold font-fredoka flex items-center space-x-1.5 transition bg-emerald-100 text-emerald-800 hover:bg-emerald-200">
+                <span>📝</span> <span>LKPD & Kuis</span>
+            </button>
+            <button onclick="switchTab('pengembang')" id="tab-btn-pengembang" class="tab-btn px-3 sm:px-5 py-2 rounded-xl text-xs sm:text-sm font-bold font-fredoka flex items-center space-x-1.5 transition bg-emerald-100 text-emerald-800 hover:bg-emerald-200">
+                <span>👨‍🏫</span> <span>Pengembang</span>
+            </button>
+        </nav>
+
+        <!-- Content Area -->
+        <main class="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-50 relative">
+
+            <!-- TAB 1: TEORI -->
+            <div id="tab-teori" class="tab-content space-y-6">
+                <div class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white p-5 rounded-2xl shadow-md">
+                    <h3 class="text-xl sm:text-2xl font-bold font-fredoka mb-2">Materi Pembelajaran: Rantai Makanan & Jaring Jaring Makanan</h3>
+                    <p class="text-sm sm:text-base text-emerald-100">Rantai makanan adalah perjalanan memakan dan dimakan dengan urutan tertentu antar makhluk hidup dalam suatu ekosistem.</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Produsen -->
+                    <div class="bg-white p-4 rounded-2xl border-2 border-emerald-200 shadow-sm flex flex-col items-center text-center">
+                        <div class="w-20 h-20 bg-emerald-100 rounded-2xl flex items-center justify-center mb-3 text-emerald-700 animate-float">
+                            <!-- SVG Rumput/Pohon -->
+                            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                        </div>
+                        <h4 class="font-bold text-emerald-800 text-base font-fredoka mb-1">1. Produsen</h4>
+                        <p class="text-xs text-slate-600">Makhluk hidup yang dapat membuat makanannya sendiri melalui fotosintesis (contoh: Rumput, Padi, Pohon).</p>
+                    </div>
+
+                    <!-- Konsumen 1 -->
+                    <div class="bg-white p-4 rounded-2xl border-2 border-amber-200 shadow-sm flex flex-col items-center text-center">
+                        <div class="w-20 h-20 bg-amber-100 rounded-2xl flex items-center justify-center mb-3 text-amber-700 animate-float">
+                            <!-- SVG Belalang -->
+                            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        </div>
+                        <h4 class="font-bold text-amber-800 text-base font-fredoka mb-1">2. Konsumen Tingkat I</h4>
+                        <p class="text-xs text-slate-600">Hewan pemakan tumbuhan (Herbivora) yang mendapat energi langsung dari produsen (contoh: Belalang, Kelinci, Tikus).</p>
+                    </div>
+
+                    <!-- Konsumen 2 -->
+                    <div class="bg-white p-4 rounded-2xl border-2 border-orange-200 shadow-sm flex flex-col items-center text-center">
+                        <div class="w-20 h-20 bg-orange-100 rounded-2xl flex items-center justify-center mb-3 text-orange-700 animate-float">
+                            <!-- SVG Katak/Karnivora -->
+                            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                        </div>
+                        <h4 class="font-bold text-orange-800 text-base font-fredoka mb-1">3. Konsumen Tingkat II/III</h4>
+                        <p class="text-xs text-slate-600">Hewan karnivora atau omnivora yang memakan konsumen di bawahnya (contoh: Katak, Ular, Burung Elang).</p>
+                    </div>
+
+                    <!-- Dekomposer -->
+                    <div class="bg-white p-4 rounded-2xl border-2 border-purple-200 shadow-sm flex flex-col items-center text-center">
+                        <div class="w-20 h-20 bg-purple-100 rounded-2xl flex items-center justify-center mb-3 text-purple-700 animate-float">
+                            <!-- SVG Jamur/Bakteri -->
+                            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        </div>
+                        <h4 class="font-bold text-purple-800 text-base font-fredoka mb-1">4. Pengurai (Dekomposer)</h4>
+                        <p class="text-xs text-slate-600">Organisme (Jamur & Bakteri) yang menguraikan sisa makhluk hidup mati menjadi zat hara tanah penyubur tanaman.</p>
+                    </div>
+                </div>
+
+                <div class="bg-emerald-50 border-2 border-emerald-200 p-4 rounded-2xl">
+                    <h4 class="font-bold text-emerald-900 font-fredoka mb-1 flex items-center space-x-2"><span>💡</span> <span>Tahukah Kamu? Aliran Energi</span></h4>
+                    <p class="text-xs sm:text-sm text-emerald-800">Energi matahari diserap oleh produsen untuk fotosintesis. Saat herbivora memakan tumbuhan, energi berpindah sebagian. Begitu seterusnya hingga tingkat konsumen puncak dan akhirnya diurai kembali oleh pengurai tanah.</p>
+                </div>
+            </div>
+
+            <!-- TAB 2: PROSEDUR -->
+            <div id="tab-prosedur" class="tab-content hidden space-y-4">
+                <div class="bg-gradient-to-r from-teal-600 to-cyan-700 text-white p-5 rounded-2xl shadow-md">
+                    <h3 class="text-xl sm:text-2xl font-bold font-fredoka mb-2">Panduan Praktikum Laboratorium Maya</h3>
+                    <p class="text-sm sm:text-base text-teal-100">Ikuti langkah-langkah kerja berikut untuk melakukan simulasi rantai makanan ekosistem darat dan sawah dengan benar.</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="bg-white p-5 rounded-2xl border-2 border-teal-200 shadow-sm">
+                        <div class="w-10 h-10 bg-teal-600 text-white rounded-xl flex items-center justify-center font-bold font-fredoka mb-3">1</div>
+                        <h4 class="font-bold text-teal-900 font-fredoka mb-1">Pilih Organisme</h4>
+                        <p class="text-xs text-slate-600">Masuk ke menu <strong>Simulasi</strong>. Amati pilihan kartu organisme yang tersedia di bagian bawah layar.</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border-2 border-teal-200 shadow-sm">
+                        <div class="w-10 h-10 bg-teal-600 text-white rounded-xl flex items-center justify-center font-bold font-fredoka mb-3">2</div>
+                        <h4 class="font-bold text-teal-900 font-fredoka mb-1">Susun Urutan Benar</h4>
+                        <p class="text-xs text-slate-600">Klik atau seret organisme sesuai urutan piramida makanan yang tepat: Rumput ➔ Belalang ➔ Katak ➔ Ular ➔ Elang ➔ Pengurai.</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border-2 border-teal-200 shadow-sm">
+                        <div class="w-10 h-10 bg-teal-600 text-white rounded-xl flex items-center justify-center font-bold font-fredoka mb-3">3</div>
+                        <h4 class="font-bold text-teal-900 font-fredoka mb-1">Uji & Analisis</h4>
+                        <p class="text-xs text-slate-600">Tekan tombol Cek Rantai Makanan. Perhatikan animasi aliran energi dan simulasi kepunahan spesies pada ekosistem!</p>
+                    </div>
+                </div>
+
+                <div class="bg-amber-50 border-2 border-amber-200 p-4 rounded-2xl flex items-start space-x-3">
+                    <span class="text-2xl">⚠️</span>
+                    <div>
+                        <h5 class="font-bold text-amber-900 font-fredoka text-sm">Catatan Keselamatan & Etika Digital</h5>
+                        <p class="text-xs text-amber-800">Pastikan tombol suara diaktifkan agar kamu mendengar umpan balik suara interaktif yang memandu praktikum.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: SIMULASI -->
+            <div id="tab-simulasi" class="tab-content hidden space-y-4">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-emerald-700 text-white p-4 rounded-2xl shadow-md gap-2">
+                    <div>
+                        <h3 class="text-lg font-bold font-fredoka">Simulasi Susun Rantai Makanan Sawah</h3>
+                        <p class="text-xs text-emerald-200">Susun 6 organisme dengan urutan rantai makanan yang tepat dari kiri ke kanan.</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="resetSimulasi()" class="bg-emerald-800 hover:bg-emerald-900 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1">
+                            <span>🔄</span> <span>Reset Susunan</span>
+                        </button>
+                        <button onclick="cekSimulasi()" class="bg-yellow-400 hover:bg-yellow-300 text-emerald-950 px-4 py-1.5 rounded-xl text-xs font-extrabold font-fredoka transition shadow">
+                            ✅ Cek Hasil
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Slot Rantai Makanan Drop Zone -->
+                <div class="bg-white p-4 sm:p-6 rounded-2xl border-2 border-emerald-300 shadow-sm">
+                    <h4 class="text-xs font-bold text-emerald-800 uppercase tracking-wider mb-3">Kotak Rantai Makanan (Urutan 1 sampai 6):</h4>
+                    <div id="drop-slots" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 min-h-[120px] bg-emerald-50/70 p-3 rounded-2xl border-2 border-dashed border-emerald-300 items-center">
+                        <!-- Slots generated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Pilihan Organisme Bank -->
+                <div class="bg-white p-4 rounded-2xl border-2 border-slate-200 shadow-sm">
+                    <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">Bank Organisme (Klik untuk memasukkan ke slot):</h4>
+                    <div id="org-bank" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                        <!-- Bank items generated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Simulasi Ekosistem & Dampak Kepunahan -->
+                <div class="bg-gradient-to-br from-slate-900 to-emerald-950 text-white p-4 rounded-2xl shadow-lg">
+                    <h4 class="font-bold font-fredoka text-yellow-300 text-sm mb-2 flex items-center space-x-2">
+                        <span>🧪</span> <span>Uji Simulasi Gangguan Ekosistem (Apa Akibatnya?)</span>
+                    </h4>
+                    <p class="text-xs text-slate-300 mb-3">Pilih salah satu hewan di bawah ini untuk mensimulasikan dampak jika hewan tersebut punah di sawah:</p>
+                    
+                    <div class="flex flex-wrap gap-2 mb-3">
+                        <button onclick="simulasiKepunahan('belalang')" class="bg-emerald-800 hover:bg-emerald-700 text-emerald-100 text-xs px-3 py-1.5 rounded-xl font-semibold transition">🦗 Jika Belalang Punah</button>
+                        <button onclick="simulasiKepunahan('ular')" class="bg-emerald-800 hover:bg-emerald-700 text-emerald-100 text-xs px-3 py-1.5 rounded-xl font-semibold transition">🐍 Jika Ular Punah</button>
+                        <button onclick="simulasiKepunahan('elang')" class="bg-emerald-800 hover:bg-emerald-700 text-emerald-100 text-xs px-3 py-1.5 rounded-xl font-semibold transition">🦅 Jika Elang Punah</button>
+                    </div>
+                    
+                    <div id="ekosistem-result" class="bg-emerald-900/60 border border-emerald-500/40 p-3 rounded-xl text-xs text-emerald-100 italic">
+                        Belum ada simulasi gangguan ekosistem yang dipilih. Klik salah satu tombol di atas untuk melihat analisisnya.
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: LKPD & KUIS -->
+            <div id="tab-lkpd" class="tab-content hidden space-y-4">
+                <div class="bg-gradient-to-r from-purple-600 to-indigo-700 text-white p-5 rounded-2xl shadow-md flex justify-between items-center">
+                    <div>
+                        <h3 class="text-xl sm:text-2xl font-bold font-fredoka mb-1">LKPD & Kuis Interaktif</h3>
+                        <p class="text-xs sm:text-sm text-purple-100">Jawab 5 soal pilihan ganda berikut untuk menguji pemahaman materi rantai makanan.</p>
+                    </div>
+                    <div class="text-right bg-white/10 px-4 py-2 rounded-xl backdrop-blur-sm border border-white/20">
+                        <p class="text-xs text-purple-200">Skor Kamu:</p>
+                        <p id="quiz-score-display" class="text-xl sm:text-2xl font-extrabold font-fredoka text-yellow-300">0 / 100</p>
+                    </div>
+                </div>
+
+                <div id="quiz-container" class="space-y-4">
+                    <!-- Quiz questions generated by script -->
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-2">
+                    <button onclick="resetKuis()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition">
+                        🔄 Ulangi Kuis
+                    </button>
+                    <button onclick="submitKuis()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold font-fredoka shadow transition">
+                        ✨ Kirim & Nilai Jawaban
+                    </button>
+                </div>
+            </div>
+
+            <!-- TAB 5: PENGEMBANG -->
+            <div id="tab-pengembang" class="tab-content hidden space-y-4">
+                <div class="bg-white p-6 sm:p-8 rounded-2xl border-2 border-emerald-200 shadow-sm flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
+                    <div class="w-28 h-28 bg-gradient-to-br from-emerald-500 to-teal-700 rounded-3xl flex items-center justify-center text-white text-5xl shadow-md font-fredoka border-4 border-white">
+                        👨‍🏫
+                    </div>
+                    <div class="text-center sm:text-left flex-1">
+                        <span class="bg-emerald-100 text-emerald-800 text-xs px-3 py-1 rounded-full font-bold">Pengajar & Pengembang</span>
+                        <h3 class="text-2xl font-bold font-fredoka text-slate-800 mt-1">I Nengah Hariana, S.Pd.</h3>
+                        <p class="text-xs sm:text-sm text-slate-600 mt-1">Guru Kelas / Pendidik Sekolah Dasar yang aktif mengembangkan media pembelajaran interaktif berbasis teknologi untuk siswa Fase C Kurikulum Merdeka.</p>
+                        
+                        <div class="mt-4 flex flex-wrap justify-center sm:justify-start gap-2">
+                            <span class="bg-slate-100 text-slate-700 text-xs px-3 py-1 rounded-xl font-medium">🏫 SDN di Indonesia</span>
+                            <span class="bg-slate-100 text-slate-700 text-xs px-3 py-1 rounded-xl font-medium">💻 Media Lab Maya Interaktif</span>
+                            <span class="bg-slate-100 text-slate-700 text-xs px-3 py-1 rounded-xl font-medium">🎯 Kurikulum Merdeka</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-emerald-50 border-2 border-emerald-200 p-5 rounded-2xl space-y-2">
+                    <h4 class="font-bold text-emerald-900 font-fredoka text-sm flex items-center space-x-2"><span>📌</span> <span>Petunjuk Penggunaan Aplikasi</span></h4>
+                    <ul class="list-disc list-inside text-xs sm:text-sm text-emerald-800 space-y-1">
+                        <li>Aplikasi ini 100% offline, mandiri, dan dapat dijalankan di komputer, tablet, maupun HP siswa.</li>
+                        <li>Gunakan tombol <strong>Teori</strong> untuk memahami konsep dasar ekosistem.</li>
+                        <li>Lakukan percobaan penyusunan organisme pada menu <strong>Simulasi Rantai Makanan</strong>.</li>
+                        <li>Kerjakan latihan soal di menu <strong>LKPD & Kuis</strong> untuk evaluasi belajar mandiri.</li>
+                    </ul>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Footer Bar -->
+        <footer class="bg-slate-100 border-t border-slate-200 px-4 py-2 text-center text-xs text-slate-500 flex justify-between items-center shrink-0">
+            <span>Lab Maya Interaktif IPAS Kelas 6 SD</span>
+            <span class="font-semibold text-emerald-700">Pengembang: I Nengah Hariana, S.Pd.</span>
+        </footer>
+
+    </div>
+
+    <!-- Message Box Modal -->
+    <div id="modal-alert" class="fixed inset-0 bg-slate-900/60 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border-4 border-emerald-400 text-center animate-pulse-slow">
+            <div id="modal-icon" class="text-4xl mb-2">🎉</div>
+            <h3 id="modal-title" class="text-lg font-bold font-fredoka text-slate-800 mb-1">Pemberitahuan</h3>
+            <p id="modal-desc" class="text-xs sm:text-sm text-slate-600 mb-4">Pesan keterangan di sini.</p>
+            <button onclick="closeModal()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold font-fredoka py-2.5 rounded-xl text-sm transition shadow">
+                Mengerti / Lanjutkan
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- Web Audio API Sound Effects ---
+        let audioCtx = null;
+        let soundEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            initAudio();
+            if (!audioCtx) return;
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'click') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(800, now + 0.08);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                osc.start(now);
+                osc.stop(now + 0.08);
+            } else if (type === 'success') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.setValueAtTime(450, now + 0.1);
+                osc.frequency.setValueAtTime(600, now + 0.2);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                osc.start(now);
+                osc.stop(now + 0.4);
+            } else if (type === 'error') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.setValueAtTime(120, now + 0.15);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                osc.start(now);
+                osc.stop(now + 0.3);
+            }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('sound-icon').innerText = soundEnabled ? '🔊' : '🔇';
+            document.getElementById('sound-text').innerText = soundEnabled ? 'Suara: ON' : 'Suara: OFF';
+            playSound('click');
+        }
+
+        // --- Splash Screen Loading ---
+        window.addEventListener('DOMContentLoaded', () => {
+            let progress = 0;
+            const bar = document.getElementById('loading-bar');
+            const status = document.getElementById('loading-status');
+            const startBtn = document.getElementById('start-btn');
+
+            const interval = setInterval(() => {
+                progress += Math.floor(Math.random() * 15) + 10;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    status.innerText = "Lab Maya siap digunakan!";
+                    startBtn.classList.remove('hidden');
+                }
+                bar.style.width = progress + '%';
+            }, 200);
+        });
+
+        function startApp() {
+            playSound('success');
+            const splash = document.getElementById('splash-screen');
+            splash.style.opacity = '0';
+            splash.style.transition = 'opacity 0.5s ease';
+            setTimeout(() => {
+                splash.style.display = 'none';
+            }, 500);
+        }
+
+        // --- Tabs Navigation ---
+        function switchTab(tabId) {
+            playSound('click');
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-emerald-600', 'text-white', 'shadow-sm');
+                btn.classList.add('bg-emerald-100', 'text-emerald-800');
+            });
+
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+            const activeBtn = document.getElementById('tab-btn-' + tabId);
+            activeBtn.classList.remove('bg-emerald-100', 'text-emerald-800');
+            activeBtn.classList.add('bg-emerald-600', 'text-white', 'shadow-sm');
+        }
+
+        // --- Modal Helper ---
+        function showModal(title, desc, icon = '🎉') {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-desc').innerText = desc;
+            document.getElementById('modal-icon').innerText = icon;
+            document.getElementById('modal-alert').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            playSound('click');
+            document.getElementById('modal-alert').classList.add('hidden');
+        }
+
+        // --- Simulasi Rantai Makanan (Sawah) ---
+        const correctOrder = ['rumput', 'belalang', 'katak', 'ular', 'elang', 'pengurai'];
+        const orgData = {
+            rumput: { name: 'Rumput', role: 'Produsen', icon: '🌿', color: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
+            belalang: { name: 'Belalang', role: 'Konsumen I', icon: '🦗', color: 'bg-amber-100 text-amber-800 border-amber-300' },
+            katak: { name: 'Katak', role: 'Konsumen II', icon: '🐸', color: 'bg-lime-100 text-lime-800 border-lime-300' },
+            ular: { name: 'Ular', role: 'Konsumen III', icon: '🐍', color: 'bg-orange-100 text-orange-800 border-orange-300' },
+            elang: { name: 'Elang', role: 'Konsumen Puncak', icon: '🦅', color: 'bg-yellow-100 text-yellow-800 border-yellow-300' },
+            pengurai: { name: 'Pengurai', role: 'Dekomposer', icon: '🍄', color: 'bg-purple-100 text-purple-800 border-purple-300' }
+        };
+
+        let userSlots = [null, null, null, null, null, null];
+        let availableBank = ['ular', 'rumput', 'elang', 'katak', 'pengurai', 'belalang'];
+
+        function renderSimulasi() {
+            const slotsContainer = document.getElementById('drop-slots');
+            slotsContainer.innerHTML = '';
+            userSlots.forEach((item, index) => {
+                if (item) {
+                    const data = orgData[item];
+                    slotsContainer.innerHTML += `
+                        <div onclick="removeFromSlot(${index})" class="${data.color} border-2 p-3 rounded-2xl flex flex-col items-center justify-center cursor-pointer shadow-sm hover:opacity-80 transition transform hover:scale-105">
+                            <span class="text-3xl mb-1">${data.icon}</span>
+                            <span class="font-bold text-xs font-fredoka">${data.name}</span>
+                            <span class="text-[10px] opacity-75">Slot ${index+1} (Klik hapus)</span>
+                        </div>
+                    `;
+                } else {
+                    slotsContainer.innerHTML += `
+                        <div class="border-2 border-dashed border-slate-300 bg-white/50 p-3 rounded-2xl flex flex-col items-center justify-center text-slate-400 h-28">
+                            <span class="text-xl mb-1">📥</span>
+                            <span class="text-xs font-semibold">Slot ${index+1}</span>
+                        </div>
+                    `;
+                }
+            });
+
+            const bankContainer = document.getElementById('org-bank');
+            bankContainer.innerHTML = '';
+            availableBank.forEach(key => {
+                const data = orgData[key];
+                bankContainer.innerHTML += `
+                    <div onclick="addToSlot('${key}')" class="${data.color} border-2 p-3 rounded-2xl flex flex-col items-center justify-center cursor-pointer shadow-sm hover:scale-105 transition">
+                        <span class="text-3xl mb-1">${data.icon}</span>
+                        <span class="font-bold text-xs font-fredoka">${data.name}</span>
+                        <span class="text-[10px] opacity-75">Klik pasang</span>
+                    </div>
+                `;
+            });
+        }
+
+        function addToSlot(key) {
+            playSound('click');
+            const emptyIndex = userSlots.indexOf(null);
+            if (emptyIndex !== -1) {
+                userSlots[emptyIndex] = key;
+                availableBank = availableBank.filter(item => item !== key);
+                renderSimulasi();
+            }
+        }
+
+        function removeFromSlot(index) {
+            playSound('click');
+            const item = userSlots[index];
+            if (item) {
+                userSlots[index] = null;
+                availableBank.push(item);
+                renderSimulasi();
+            }
+        }
+
+        function resetSimulasi() {
+            playSound('click');
+            userSlots = [null, null, null, null, null, null];
+            availableBank = ['ular', 'rumput', 'elang', 'katak', 'pengurai', 'belalang'];
+            renderSimulasi();
+        }
+
+        function cekSimulasi() {
+            playSound('click');
+            if (userSlots.includes(null)) {
+                showModal("Belum Lengkap!", "Mohon isi semua 6 slot urutan rantai makanan terlebih dahulu.", "⚠️");
+                return;
+            }
+
+            let isCorrect = true;
+            for (let i = 0; i < 6; i++) {
+                if (userSlots[i] !== correctOrder[i]) {
+                    isCorrect = false;
+                    break;
+                }
+            }
+
+            if (isCorrect) {
+                playSound('success');
+                showModal("Luar Biasa! 🎉", "Urutan rantai makanan yang kamu susun sudah BENAR! Aliran energi berjalan dengan sempurna dari Produsen hingga Pengurai.", "🏆");
+            } else {
+                playSound('error');
+                showModal("Kurang Tepat ❌", "Urutan rantai makanan belum tepat. Ingat: Rumput dimakan Belalang, Belalang dimakan Katak, Katak dimakan Ular, Ular dimakan Elang, dan diakhiri Pengurai.", "💡");
+            }
+        }
+
+        function simulasiKepunahan(hewan) {
+            playSound('click');
+            const resBox = document.getElementById('ekosistem-result');
+            if (hewan === 'belalang') {
+                resBox.innerHTML = "🦗 <strong>Dampak Belalang Punah:</strong> Rumput tumbuh sangat subur karena tidak ada pemakan. Sebaliknya, Katak kelaparan dan jumlahnya menurun drastis karena kehilangan mangsa utama.";
+            } else if (hewan === 'ular') {
+                resBox.innerHTML = "🐍 <strong>Dampak Ular Punah:</strong> Jumlah Katak meningkat tak terkendali karena tidak ada pemangsa. Namun, Elang kekurangan makanan dan populasinya terancam turun.";
+            } else if (hewan === 'elang') {
+                resBox.innerHTML = "🦅 <strong>Dampak Elang Punah:</strong> Predator puncak hilang, sehingga jumlah Ular meningkat pesat. Keseimbangan ekosistem sawah terganggu secara menyeluruh.";
+            }
+        }
+
+        // --- LKPD & Kuis Interaktif ---
+        const quizQuestions = [
+            {
+                q: "1. Makhluk hidup yang berperan sebagai produsen dalam rantai makanan ekosistem darat adalah...",
+                options: ["A. Belalang", "B. Padi / Rumput", "C. Ayam", "D. Ular"],
+                answer: 1,
+                pembahasan: "Produsen adalah tumbuhan hijau yang dapat menghasilkan makanan sendiri melalui fotosintesis (contoh: padi atau rumput)."
+            },
+            {
+                q: "2. Hewan pemakan tumbuhan (herbivora) dalam rantai makanan menduduki posisi sebagai...",
+                options: ["A. Konsumen Tingkat I", "B. Konsumen Tingkat II", "C. Pengurai", "D. Produsen Puncak"],
+                answer: 0,
+                pembahasan: "Herbivora memakan tumbuhan secara langsung, sehingga disebut sebagai Konsumen Tingkat I."
+            },
+            {
+                q: "3. Perhatikan urutan: Rumput ➔ Belalang ➔ Katak ➔ Ular ➔ Elang. Peran hewan Katak dalam rantai makanan tersebut adalah...",
+                options: ["A. Produsen", "B. Konsumen Tingkat I", "C. Konsumen Tingkat II", "D. Dekomposer"],
+                answer: 2,
+                pembahasan: "Belalang adalah Konsumen I, maka Katak yang memakan belalang adalah Konsumen Tingkat II."
+            },
+            {
+                q: "4. Fungsi utama organisme pengurai (dekomposer) seperti jamur dan bakteri dalam ekosistem adalah...",
+                options: ["A. Menghasilkan makanan sendiri", "B. Memangsa hewan herbivora", "C. Menguraikan sisa makhluk hidup mati menjadi zat hara", "D. Menyerap sinar matahari secara langsung"],
+                answer: 2,
+                pembahasan: "Pengurai menguraikan bangkai atau sisa tumbuhan mati menjadi zat hara yang menyuburkan tanah tempat produsen tumbuh."
+            },
+            {
+                q: "5. Apa yang akan terjadi pada ekosistem jika seluruh ular sawah mendadak punah karena perburuan?",
+                options: ["A. Populasi katak akan meledak / meningkat pesat", "B. Tanaman padi semakin subur", "C. Jumlah elang bertambah banyak", "D. Rantai makanan menjadi sangat sempurna"],
+                answer: 0,
+                pembahasan: "Ular adalah pemangsa katak. Jika ular punah, populasi katak tidak ada yang mengontrol sehingga akan meningkat pesat."
+            }
+        ];
+
+        function renderKuis() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = '';
+            quizQuestions.forEach((item, idx) => {
+                let optionsHtml = '';
+                item.options.forEach((opt, optIdx) => {
+                    optionsHtml += `
+                        <label class="flex items-center space-x-2 text-xs sm:text-sm text-slate-700 bg-white p-2.5 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 transition">
+                            <input type="radio" name="q${idx}" value="${optIdx}" class="text-emerald-600 focus:ring-emerald-500">
+                            <span>${opt}</span>
+                        </label>
+                    `;
+                });
+                container.innerHTML += `
+                    <div class="bg-purple-50/60 border-2 border-purple-200 p-4 rounded-2xl space-y-3">
+                        <h4 class="font-bold text-purple-900 font-fredoka text-sm sm:text-base">${item.q}</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">${optionsHtml}</div>
+                        <div id="pembahasan-${idx}" class="hidden text-xs bg-white p-3 rounded-xl border border-purple-200 text-purple-800">
+                            <strong>Pembahasan:</strong> ${item.pembahasan}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function submitKuis() {
+            playSound('click');
+            let score = 0;
+            quizQuestions.forEach((item, idx) => {
+                const selected = document.querySelector(`input[name="q${idx}"]:checked`);
+                const pemb = document.getElementById(`pembahasan-${idx}`);
+                pemb.classList.remove('hidden');
+                if (selected && parseInt(selected.value) === item.answer) {
+                    score += 20;
+                }
+            });
+
+            document.getElementById('quiz-score-display').innerText = score + ' / 100';
+            if (score >= 80) {
+                playSound('success');
+                showModal("Hebat Sekali! 🌟", `Skor kamu ${score}/100. Kamu sangat menguasai materi rantai makanan dengan sangat baik!`, "🏆");
+            } else {
+                playSound('error');
+                showModal("Bagus! Terus Belajar", `Skor kamu ${score}/100. Pelajari kembali materi Teori dan coba ulangi kuis untuk hasil lebih baik!`, "📖");
+            }
+        }
+
+        function resetKuis() {
+            playSound('click');
+            renderKuis();
+            document.getElementById('quiz-score-display').innerText = '0 / 100';
+        }
+
+        // Initialize simulation and quiz on load
+        renderSimulasi();
+        renderKuis();
+    </script>
+</body>
+</html>
